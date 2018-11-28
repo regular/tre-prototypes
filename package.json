@@ -8,15 +8,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/regular/tre-prototypes-demo.git"
+    "url": "git+https://github.com/regular/tre-prototypes.git"
   },
   "keywords": [],
   "author": "Jan Bölsche <jan@lagomorph.de> (https://regular.codes/)",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/regular/tre-prototypes-demo/issues"
+    "url": "https://github.com/regular/tre-prototypes/issues"
   },
-  "homepage": "https://github.com/regular/tre-prototypes-demo#readme",
+  "homepage": "https://github.com/regular/tre-prototypes#readme",
   "dependencies": {
     "lodash.merge": "^4.6.1",
     "mutant": "^3.22.1",

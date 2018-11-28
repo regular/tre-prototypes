@@ -1,4 +1,4 @@
-tre-prototypes-demo
+tre-prototypes
 ---
 
 License: ISC

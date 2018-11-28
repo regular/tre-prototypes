@@ -1,5 +1,5 @@
 {
-  "name": "tre-prototypes-demo",
+  "name": "tre-prototypes",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -19,12 +19,8 @@
   "homepage": "https://github.com/regular/tre-prototypes-demo#readme",
   "dependencies": {
     "lodash.merge": "^4.6.1",
-    "module-styles": "^1.0.0",
     "mutant": "^3.22.1",
     "observable-linked-list": "^1.0.0",
-    "tre-finder": "^2.0.0",
-    "tre-json-editor": "^2.0.0",
-    "tre-split-pane": "^1.0.0",
     "tre-watch-heads": "^1.0.0"
   },
   "tre-init": {
@@ -35,6 +31,10 @@
   },
   "devDependencies": {
     "ssb-revisions": "^1.0.1",
-    "tre-client": "^1.1.0"
+    "tre-client": "^1.1.0",
+    "module-styles": "^1.0.0",
+    "tre-finder": "^2.0.0",
+    "tre-json-editor": "^2.0.0",
+    "tre-split-pane": "^1.0.0"
   }
 }

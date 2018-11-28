@@ -8,7 +8,7 @@ const WatchHeads = require('tre-watch-heads')
 const setStyle = require('module-styles')('tre-prototype-demo')
 const {makePane, makeDivider, makeSplitPane} = require('tre-split-pane')
 const oll = require('observable-linked-list')
-const merge = require('lodash.merge')
+const WatchMerged = require('.')
 require('brace/theme/solarized_dark')
 
 setStyle(`
@@ -43,6 +43,7 @@ client( (err, ssb, config) => {
   if (err) return console.error(err)
 
   const watchHeads = WatchHeads(ssb)
+  const watchMerged = WatchMerged(ssb)
   const primarySelection = Value()
   const realtime_kv = computed(primarySelection, kv => {
     const content = kv && kv.value && kv.value.content
@@ -50,17 +51,12 @@ client( (err, ssb, config) => {
     return watchHeads(kv.value.content.revisionRoot || kv.key)
   })
 
-  function getProto(kv) {
-    return kv && kv.value && kv.value.content && kv.value.content.prototype
-  }
-  const chain_kv = oll(realtime_kv, getProto, watchHeads)
-  const merged_kv = computed(chain_kv, kvs => {
-    const prototypes = kvs.slice(1).map(kv => kv && kv.value.content.revisionRoot || kv && kv.key)
-    if (!prototypes.length) return kvs[0]
-    const merged = merge({}, ...kvs.reverse())
-    //delete merged.value.content.prototype
-    Object.assign(merged.meta, {prototypes, "prototype-chain": kvs})
-    return merged
+  const chain_kv = oll(realtime_kv, proto, watchHeads)
+
+  const merged_kv = computed(primarySelection, kv => {
+    const c = content(kv)
+    if (!c) return
+    return watchMerged(c.revisionRoot || kv.key)
   })
   
   const renderFinder = Finder(ssb, {
@@ -127,3 +123,14 @@ client( (err, ssb, config) => {
     ])
   )
 })
+
+// -- utils
+
+function content(kv) {
+  return kv && kv.value && kv.value.content 
+}
+
+function proto(kv) {
+  const c = content(kv)
+  return c && c.prototype
+}

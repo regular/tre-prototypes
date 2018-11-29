@@ -62,6 +62,9 @@ client( (err, ssb, config) => {
   const renderFinder = Finder(ssb, {
     primarySelection,
     skipFirstLevel: true,
+    details: (kv, ctx) => {
+      return kv && kv.meta && kv.meta["prototype-chain"] ? h('i', '(has proto)') : []
+    },
     factory: {
       menu: ()=> [{label: 'Object', type: 'object'}],
       make: type => type == 'object' && {

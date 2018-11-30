@@ -3,6 +3,7 @@ const WatchHeads = require('tre-watch-heads')
 const isObservable = require('mutant/is-observable')
 const oll = require('observable-linked-list')
 const merge = require('lodash.merge')
+const {isMsgId} = require('ssb-ref')
 
 module.exports = function(ssb) {
   const watchHeads = WatchHeads(ssb)
@@ -31,7 +32,8 @@ function content(kv) {
 
 function proto(kv) {
   const c = content(kv)
-  return c && c.prototype
+  const p = c && c.prototype
+  return isMsgId(p) ? p : null
 }
 
 function revRoot(kv) {

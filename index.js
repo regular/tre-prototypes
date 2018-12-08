@@ -10,12 +10,22 @@ module.exports = function(ssb) {
 
   return function watch_merged(revRoot_or_obv, opts) {
     opts = opts || {}
-    const head_kv = isObservable(revRoot_or_obv) ? revRoot_or_obv : watchHeads(revRoot_or_obv)
+    const is_obv = isObservable(revRoot_or_obv) 
+    console.warn('is_ob', is_obv)
+    const head_kv = is_obv ? revRoot_or_obv : watchHeads(revRoot_or_obv)
     const chain_kv = oll(head_kv, proto, watchHeads)
     return computed(chain_kv, kvs => {
-      const prototypes = kvs.slice(1).map(kv => revRoot(kv) || kv && kv.key)
+      const prototypes = kvs.slice(1).map(kv => revRoot(kv))
       if (!prototypes.length) return kvs[0]
-      const merged = merge({}, ...kvs.reverse())
+      const merged = merge({}, ...kvs.slice().reverse(), {
+        value: {
+          content: {
+            // do not inherit revisionRoot or revisionBranch
+            revisionRoot: kvs[0].value.content.revisionRoot,
+            revisionBranch: kvs[0].value.content.revisionBranch
+          }
+        }
+      })
       if (opts.meta !== false) {
         merged.meta = Object.assign(merged.meta || {}, {"prototype-chain": kvs})
       }

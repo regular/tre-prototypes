@@ -9,6 +9,7 @@ const setStyle = require('module-styles')('tre-prototype-demo')
 const {makePane, makeDivider, makeSplitPane} = require('tre-split-pane')
 const oll = require('observable-linked-list')
 const WatchMerged = require('.')
+const deepEqaul = require('deep-equal')
 require('brace/theme/solarized_dark')
 
 setStyle(`
@@ -44,7 +45,9 @@ client( (err, ssb, config) => {
 
   const watchHeads = WatchHeads(ssb)
   const watchMerged = WatchMerged(ssb)
+
   const primarySelection = Value()
+  const editorBase = Value()
   const realtime_kv = computed(primarySelection, kv => {
     const content = kv && kv.value && kv.value.content
     if (!content) return
@@ -79,13 +82,6 @@ client( (err, ssb, config) => {
       theme: 'ace/theme/solarized_dark',
       tabSize: 2,
       useSoftTabs: true
-    },
-    save: (kv, cb) => {
-      const content = kv.value.content
-      content.revisionBranch = kv.key
-      content.revisionRoot = content.revisionRoot || kv.key
-      console.log('new content', content)
-      ssb.publish(content, cb)
     }
   })
 
@@ -100,9 +96,39 @@ client( (err, ssb, config) => {
           makeDivider(),
           makePane('70%', [
             h('h1', 'Editor'),
-            h('span', computed(primarySelection, kv => `based on ${kv && kv.key}`)),
-            h('span', computed([primarySelection, realtime_kv], (sel, real) => sel && real && sel.key !== real.key ? '(outdated)' : '(no conflict)' )),
-            computed(primarySelection, kv => kv ? renderEditor(kv) : [])
+            h('span', computed(editorBase, kv => `based on ${kv && kv.key}`)),
+            h('span', computed([editorBase, realtime_kv], (base, real) => base && real && base.key !== real.key ? '(outdated)' : '(no conflict)' )),
+            computed(primarySelection, kv => {
+              editorBase.set(kv)
+              if (!kv) return []
+              // the Finder selection will give as the merged content,
+              // but in the editor, we want raw content
+              const content = (kv.meta && kv.meta['prototype-chain']) ? kv.meta['prototype-chain'][0].value.content : kv.value.content
+              console.warn('ps', kv, content)
+              const contentObs = Value(content)
+              return [
+                // contentObs will be updated by the editor whenever the edited text is valid json
+                renderEditor({
+                  key: kv.key,
+                  value: {content}
+                }, {contentObs}),
+                h('button', {
+                  disabled: computed([contentObs, editorBase], (c, base) => deepEqaul(c, base.value.content)),
+                  'ev-click': e => {
+                    const content = contentObs()
+                    content.revisionBranch = kv.key
+                    content.revisionRoot = kv.value.content.revisionRoot || kv.key
+                    console.log('new content', content)
+                    ssb.publish(content, (err, msg) => {
+                      if (err) return console.error(err)
+                      kv = msg
+                      editorBase.set(msg)
+                      contentObs.set(msg.value.content)
+                    })
+                  }
+                }, 'Save')
+              ]
+            })
           ])
         ]),
         makeDivider(),

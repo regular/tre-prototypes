@@ -10,10 +10,16 @@ module.exports = function(ssb) {
 
   return function watch_merged(revRoot_or_obv, opts) {
     opts = opts || {}
+
+    function getObs(kv) {
+      return watchHeads(kv, {
+        allowAllAuthors: opts.allowAllAuthors
+      })
+    }
+
     const is_obv = isObservable(revRoot_or_obv) 
-    console.warn('is_ob', is_obv)
-    const head_kv = is_obv ? revRoot_or_obv : watchHeads(revRoot_or_obv)
-    const chain_kv = oll(head_kv, proto, watchHeads)
+    const head_kv = is_obv ? revRoot_or_obv : getObs(revRoot_or_obv)
+    const chain_kv = oll(head_kv, proto, getObs)
     return computed(chain_kv, kvs => {
       const prototypes = kvs.slice(1).map(kv => revRoot(kv))
       if (!prototypes.length) return kvs[0]
@@ -27,7 +33,14 @@ module.exports = function(ssb) {
         }
       })
       if (opts.meta !== false) {
-        merged.meta = Object.assign(merged.meta || {}, {"prototype-chain": kvs})
+        merged.meta = Object.assign({},
+          mergeMeta(kvs.map(kvm => {
+            return kvm && kvm.meta || {}
+          })),
+          {"prototype-chain": kvs}
+        )
+      } else {
+        delete merged.meta
       }
       return merged
     })
@@ -35,6 +48,20 @@ module.exports = function(ssb) {
 }
 
 // -- utils
+
+function mergeMeta(metas) {
+  const result = {
+    forked: false,
+    incomplete: false,
+    change_requests: 0
+  }
+  metas.forEach(meta => {
+    if (meta.forked) result.forked = true
+    if (meta.incomplete) result.incomplete = true
+    result.change_requests += meta.change_requests || 0
+  })
+  return result
+}
 
 function content(kv) {
   return kv && kv.value && kv.value.content 

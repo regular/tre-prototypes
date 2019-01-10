@@ -1,7 +1,7 @@
 {
   "name": "tre-prototypes",
   "version": "1.6.0",
-  "description": "",
+  "description": "javascript-style prototype-chains for ssb messages",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,7 +10,7 @@
     "type": "git",
     "url": "git+https://github.com/regular/tre-prototypes.git"
   },
-  "keywords": [],
+  "keywords": ["tre", "ssb", "ssb-revisions"],
   "author": "Jan Bölsche <jan@lagomorph.de> (https://regular.codes/)",
   "license": "ISC",
   "bugs": {

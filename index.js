@@ -11,8 +11,8 @@ module.exports = function(ssb) {
   return function watch_merged(revRoot_or_obv, opts) {
     opts = opts || {}
 
-    function getObs(kv) {
-      return watchHeads(kv, {
+    function getObs(revRoot) {
+      return watchHeads(revRoot, {
         allowAllAuthors: opts.allowAllAuthors
       })
     }

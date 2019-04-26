@@ -1,6 +1,6 @@
 {
   "name": "tre-prototypes",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "javascript-style prototype-chains for ssb messages",
   "main": "index.js",
   "scripts": {

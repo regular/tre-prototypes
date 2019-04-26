@@ -4,7 +4,7 @@
   "description": "javascript-style prototype-chains for ssb messages",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "tape test/**"
   },
   "repository": {
     "type": "git",
@@ -38,6 +38,7 @@
     "deep-equal": "^1.0.1",
     "module-styles": "^1.0.0",
     "ssb-revisions": "^1.0.1",
+    "tape": "^4.10.1",
     "tre-client": "^1.1.0",
     "tre-finder": "^2.0.0",
     "tre-json-editor": "^2.0.0",

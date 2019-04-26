@@ -3,10 +3,12 @@ const WatchHeads = require('tre-watch-heads')
 const isObservable = require('mutant/is-observable')
 const oll = require('observable-linked-list')
 const merge = require('lodash.merge')
-const {isMsgId} = require('ssb-ref')
+const ref = require('ssb-ref')
 
-module.exports = function(ssb) {
-  const watchHeads = WatchHeads(ssb)
+module.exports = function(ssb, deps) {
+  deps = deps || {}  // fir testing
+  const watchHeads = deps.watchHeads || WatchHeads(ssb)
+  const isMsgId = deps.isMsgId || ref.isMsgId
 
   return function watch_merged(revRoot_or_obv, opts) {
     opts = opts || {}
@@ -19,8 +21,12 @@ module.exports = function(ssb) {
 
     const is_obv = isObservable(revRoot_or_obv) 
     const head_kv = is_obv ? revRoot_or_obv : getObs(revRoot_or_obv)
-    const chain_kv = oll(head_kv, proto, getObs)
+    const chain_kv = oll(head_kv, proto(isMsgId), getObs)
     return computed(chain_kv, kvs => {
+      if (kvs.includes(null)) {
+        // suppress intermediate states
+        return computed.NO_CHANGE
+      }
       const prototypes = kvs.slice(1).map(kv => revRoot(kv))
       if (!prototypes.length) return kvs[0]
       const merged = merge({}, ...kvs.slice().reverse(), {
@@ -67,10 +73,12 @@ function content(kv) {
   return kv && kv.value && kv.value.content 
 }
 
-function proto(kv) {
-  const c = content(kv)
-  const p = c && c.prototype
-  return isMsgId(p) ? p : null
+function proto(isMsgId) {
+  return function(kv) {
+    const c = content(kv)
+    const p = c && c.prototype
+    return isMsgId(p) ? p : null
+  }
 }
 
 function revRoot(kv) {

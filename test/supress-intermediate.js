@@ -19,7 +19,7 @@ test('supresses intermediate values', t=>{
   OBS.a = Value()
   OBS.b = Value()
 
-  const o = watchMerged('a')
+  const o = watchMerged('a', {suppressIntermediate: true})
   o( kv=>{
     console.log('observe', kv)
     t.equal(kv.value.content.name, 'bar', 'name is inherited')

@@ -23,8 +23,7 @@ module.exports = function(ssb, deps) {
     const head_kv = is_obv ? revRoot_or_obv : getObs(revRoot_or_obv)
     const chain_kv = oll(head_kv, proto(isMsgId), getObs)
     return computed(chain_kv, kvs => {
-      if (kvs.includes(null)) {
-        // suppress intermediate states
+      if (opts.suppressIntermediate && kvs.includes(null)) {
         return computed.NO_CHANGE
       }
       const prototypes = kvs.slice(1).map(kv => revRoot(kv))

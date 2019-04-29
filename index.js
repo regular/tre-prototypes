@@ -23,8 +23,11 @@ module.exports = function(ssb, deps) {
     const head_kv = is_obv ? revRoot_or_obv : getObs(revRoot_or_obv)
     const chain_kv = oll(head_kv, proto(isMsgId), getObs)
     return computed(chain_kv, kvs => {
-      if (opts.suppressIntermediate && kvs.includes(null)) {
-        return computed.NO_CHANGE
+      if (kvs.length > 1 && opts.suppressIntermediate && kvs.includes(null)) {
+        // for some reason returning null here
+        // results in better performance
+        return null
+        //return computed.NO_CHANGE
       }
       const prototypes = kvs.slice(1).map(kv => revRoot(kv))
       if (!prototypes.length) return kvs[0]
